@@ -1,1 +1,28 @@
 @import '~antd/dist/antd.css';
+
+.app-title {
+    text-align: center;
+    color: #007aff
+}
+
+.home-screen {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.home-container {
+    padding: 15px;
+    margin: 15px;
+    width: 100%;
+    max-width: 300px;
+}
+
+
+.collect-time {
+    color: #1ec337;
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px;
+    font-size: 18px;
+}

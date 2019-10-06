@@ -7,17 +7,22 @@ import Home from './containers/Home'
 class App extends React.Component {
 
 
-  render(){
+  render() {
     return (
       <div>
-        <header>
-          <h1>MyLixo</h1>
-        </header>
-        <Home/>
+        <div className="home-screen">
+          <div className="home-container">
+            <header>
+              <h1 className="app-title">MyLixo</h1>
+            </header>
+
+            <Home />
+          </div>
+        </div>
       </div>
     );
   }
-  
+
 }
 
 export default App;

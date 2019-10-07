@@ -5,11 +5,10 @@ import uniqBy from 'lodash/uniqBy'
 import axios from 'axios';
 import NumericInput from '../components/NumericInput';
 import { Button } from 'antd';
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
+import MapView from './MapView';
 
 const { Option } = Select;
-
-
 
 class Home extends React.Component {
   constructor(props) {
@@ -79,6 +78,7 @@ class Home extends React.Component {
   render() {
     const { fetching, data, value } = this.state;
     return (
+      <MapView>
       <div className="home-container">
         <Select
           showSearch
@@ -107,6 +107,7 @@ class Home extends React.Component {
           </Link>
         </div>
       </div>
+      </MapView>
     );
   }
 }

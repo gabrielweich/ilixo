@@ -26,3 +26,10 @@
     padding: 10px;
     font-size: 18px;
 }
+
+
+img {
+    max-width: 100%; 
+    display:block; 
+    height: auto;
+}

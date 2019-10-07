@@ -5,7 +5,7 @@ import uniqBy from 'lodash/uniqBy'
 import axios from 'axios';
 import NumericInput from '../components/NumericInput';
 import { Button } from 'antd';
-
+import { Link } from "react-router-dom";
 
 const { Option } = Select;
 
@@ -61,15 +61,15 @@ class Home extends React.Component {
   };
 
   onSearch = async () => {
-    this.setState({loading: true})
+    this.setState({ loading: true })
     const { number, value } = this.state
     if (number && value.key) {
       const { data } = await axios.get(`/api/garbage-collection?address_code=${value.key}&number=${number}`)
-      if (data && data.time){
-        this.setState({collectTime: data.time})
+      if (data && data.time) {
+        this.setState({ collectTime: data.time })
       }
     }
-    this.setState({loading: false})
+    this.setState({ loading: false })
   }
 
   onChangeNumber = (value) => {
@@ -79,7 +79,7 @@ class Home extends React.Component {
   render() {
     const { fetching, data, value } = this.state;
     return (
-      <div>
+      <div className="home-container">
         <Select
           showSearch
           labelInValue
@@ -101,6 +101,11 @@ class Home extends React.Component {
           <Button onClick={this.onSearch} type="primary" block loading={this.state.loading}>Buscar</Button>
         </div>
         <p className="collect-time">{this.state.collectTime}</p>
+        <div style={{ textAlign: 'center' }}>
+          <Link to="/hints">
+            <Button type="primary" shape="round" style={{ borderColor: 'transparent', backgroundColor: 'rgba(52, 199, 89)', marginTop: 30 }}>Dicas de Reciclagem</Button>
+          </Link>
+        </div>
       </div>
     );
   }

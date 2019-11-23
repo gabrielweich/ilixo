@@ -1,10 +1,9 @@
 import React from 'react';
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import logo from './logo.svg';
 import './App.css';
-import Home from './containers/Home';
-import Hints from './containers/Hints';
-import MapView from './containers/MapView';
+import Home from './containers/Home'
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import Hints from './containers/Hints'
 
 class App extends React.Component {
 
@@ -15,23 +14,18 @@ class App extends React.Component {
         <div>
           <div className="home-screen">
 
-            {/* <header>
+            <header>
               <h1 className="app-title">MyLixo</h1>
-            </header> */}
+            </header>
 
             <Switch>
-              <Route exact path="/">
-                <Home />
-              </Route>
-
               <Route path="/hints">
                 <Hints />
               </Route>
 
-              <Route path="/map">
-                <MapView />
+              <Route path="/">
+                <Home />
               </Route>
-
             </Switch>
           </div>
         </div>

@@ -1,15 +1,15 @@
-import React from 'react';
-import { Select, Spin } from 'antd';
-import debounce from 'lodash/debounce';
-import uniqBy from 'lodash/uniqBy'
-import axios from 'axios';
-import NumericInput from '../components/NumericInput';
-import { Button } from 'antd';
+import React from "react";
+import { Select, Spin, Button, Icon, Divider } from "antd";
+import debounce from "lodash/debounce";
+import uniqBy from "lodash/uniqBy";
+import axios from "axios";
+import NumericInput from "../components/NumericInput";
 import { Link } from "react-router-dom";
+import Favorite from "./Favorite";
 
 const { Option } = Select;
 
-
+const DEFAULT_USER_ID = 1;
 
 class Home extends React.Component {
   constructor(props) {
@@ -24,20 +24,22 @@ class Home extends React.Component {
     fetching: false,
     number: null,
     loading: false,
-    collectTime: ''
+    collectTime: "",
+    favoriteModalOpen: false,
+    favorites: []
   };
 
-
   async componentDidMount() {
-    console.log('Requesting position')
+    this.getUserFavorites();
     await navigator.geolocation.getCurrentPosition(
       async position => {
-        console.log({ position })
-        const { latitude, longitude } = position.coords
-        const { data } = await axios.get(`/api/garbage-collection/coordinates?latitude=${latitude}&longitude=${longitude}`)
+        const { latitude, longitude } = position.coords;
+        const { data } = await axios.get(
+          `/api/garbage-collection/coordinates?latitude=${latitude}&longitude=${longitude}`
+        );
         if (data && data.length) {
-          const { street, address_code } = data[0]
-          this.setState({ value: { key: address_code, label: street } })
+          const { street, address_code } = data[0];
+          this.setState({ value: { key: address_code, label: street } });
         }
       },
       err => console.log(err)
@@ -45,36 +47,58 @@ class Home extends React.Component {
   }
 
   fetchUser = async value => {
-    console.log('fetching user', value);
-    this.setState({ data: [], fetching: true })
-    const { data } = await axios.get(`/api/addresses?street=${value}`)
-    this.setState({ data: uniqBy(data, 'address_code'), fetching: false })
+    this.setState({ data: [], fetching: true });
+    const { data } = await axios.get(`/api/addresses?street=${value}`);
+    this.setState({ data: uniqBy(data, "address_code"), fetching: false });
   };
 
   handleChange = async value => {
-    console.log({ value })
+    console.log({ value });
     this.setState({
       value,
       data: [],
-      fetching: false,
+      fetching: false
     });
   };
 
   onSearch = async () => {
-    this.setState({ loading: true })
-    const { number, value } = this.state
+    this.setState({ loading: true });
+    const { number, value } = this.state;
     if (number && value.key) {
-      const { data } = await axios.get(`/api/garbage-collection?address_code=${value.key}&number=${number}`)
+      const { data } = await axios.get(
+        `/api/garbage-collection?address_code=${value.key}&number=${number}`
+      );
       if (data && data.time) {
-        this.setState({ collectTime: data.time })
+        this.setState({ collectTime: data.time });
       }
     }
-    this.setState({ loading: false })
-  }
+    this.setState({ loading: false });
+  };
 
-  onChangeNumber = (value) => {
-    this.setState({ number: value })
-  }
+  onChangeNumber = value => {
+    this.setState({ number: value });
+  };
+
+  editSavedAddresses = () => {
+    this.setState({ favoriteModalOpen: true });
+  };
+
+  onSaveFavorite = async (address_code, number, label) => {
+    await axios.post("/api/favorites", {
+      address_code,
+      number,
+      label,
+      user_id: DEFAULT_USER_ID
+    });
+    this.getUserFavorites();
+  };
+
+  getUserFavorites = async () => {
+    const favorites = await axios.get(
+      `/api/favorites?user_id=${DEFAULT_USER_ID}`
+    );
+    console.log(favorites);
+  };
 
   render() {
     const { fetching, data, value } = this.state;
@@ -89,27 +113,65 @@ class Home extends React.Component {
           filterOption={false}
           onSearch={this.fetchUser}
           onChange={this.handleChange}
-          style={{ width: '100%' }}
+          style={{ width: "100%" }}
+          dropdownRender={menu => (
+            <div>
+              {menu}
+              <Divider style={{ margin: "4px 0" }} />
+              <div
+                style={{ padding: "4px 8px", cursor: "pointer" }}
+                onMouseDown={e => e.preventDefault()}
+                onClick={this.editSavedAddresses}
+              >
+                <Icon type="pushpin" /> Editar endereços salvos
+              </div>
+            </div>
+          )}
         >
           {data.map(d => (
             <Option key={d.address_code}>{d.street}</Option>
           ))}
         </Select>
         <div style={{ marginTop: 20 }}>
-          <NumericInput style={{ width: '100%' }} value={this.state.number} onChange={this.onChangeNumber} />
+          <NumericInput
+            style={{ width: "100%" }}
+            value={this.state.number}
+            onChange={this.onChangeNumber}
+          />
           <div style={{ marginTop: 20 }} />
-          <Button onClick={this.onSearch} type="primary" block loading={this.state.loading}>Buscar</Button>
+          <Button
+            onClick={this.onSearch}
+            type="primary"
+            block
+            loading={this.state.loading}
+          >
+            Buscar
+          </Button>
         </div>
         <p className="collect-time">{this.state.collectTime}</p>
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: "center" }}>
           <Link to="/hints">
-            <Button type="primary" shape="round" style={{ borderColor: 'transparent', backgroundColor: 'rgba(52, 199, 89)', marginTop: 30 }}>Dicas de Reciclagem</Button>
+            <Button
+              type="primary"
+              shape="round"
+              style={{
+                borderColor: "transparent",
+                backgroundColor: "rgba(52, 199, 89)",
+                marginTop: 30
+              }}
+            >
+              Dicas de Reciclagem
+            </Button>
           </Link>
         </div>
+        <Favorite
+          onSaveFavorite={this.onSaveFavorite}
+          open={this.state.favoriteModalOpen}
+          onClose={() => this.setState({ favoriteModalOpen: false })}
+        />
       </div>
     );
   }
 }
 
-
-export default Home
+export default Home;

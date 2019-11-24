@@ -2,7 +2,8 @@
 
 .app-title {
     text-align: center;
-    color: #007aff
+    color: #007aff;
+    margin-top: 20px;
 }
 
 .home-screen {

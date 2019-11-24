@@ -98,17 +98,9 @@ class Home extends React.Component {
     this.setState({ favoriteModalOpen: true });
   };
 
-  onSaveFavorite = async (
-    address_code,
-    address_number,
-    address_street,
-    label
-  ) => {
+  onSaveFavorite = async favorite => {
     await axios.post("/api/favorites", {
-      address_code,
-      address_number,
-      address_street,
-      label,
+      ...favorite,
       user_id: DEFAULT_USER_ID
     });
     this.getUserFavorites();
@@ -121,12 +113,20 @@ class Home extends React.Component {
     this.getUserFavorites();
   };
 
+  onUpdateFavorite = async favorite => {
+    await axios.put("/api/favorites", {
+      ...favorite,
+      user_id: DEFAULT_USER_ID
+    });
+    this.getUserFavorites();
+  };
+
   getUserFavorites = async () => {
     const { data } = await axios.get(
       `/api/favorites?user_id=${DEFAULT_USER_ID}`
     );
     if (!data) return;
-    const favoriteMap = data.reduce(
+    const favoriteMap = data.sort((a, b) => a.label.localeCompare(b.label)).reduce(
       (acc, curr) => ({
         ...acc,
         [curr.favorite_id]: curr
@@ -214,6 +214,7 @@ class Home extends React.Component {
           </Link>
         </div>
         <Favorite
+          onUpdateFavorite={this.onUpdateFavorite}
           onDeleteFavorite={this.onDeleteFavorite}
           favorites={this.state.favorites}
           onSaveFavorite={this.onSaveFavorite}

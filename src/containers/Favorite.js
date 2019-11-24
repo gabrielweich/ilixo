@@ -20,7 +20,8 @@ export default class Favorite extends React.Component {
     fetching: false,
     number: null,
     name: null,
-    saveLoading: false
+    saveLoading: false,
+    selectedFavoriteId: null
   };
 
   fetchAddresses = async value => {
@@ -48,14 +49,47 @@ export default class Favorite extends React.Component {
 
   onSave = async () => {
     this.setState({ saveLoading: true });
-    const { value, number, name } = this.state;
-    await this.props.onSaveFavorite(
-      parseInt(value.key),
-      parseInt(number),
-      value.label,
-      name
+    const { value, number, name, selectedFavoriteId } = this.state;
+
+    const baseData = {
+      address_code: parseInt(value.key),
+      address_number: parseInt(number),
+      address_street: value.label,
+      label: name
+    };
+
+    if (selectedFavoriteId) {
+      await this.props.onUpdateFavorite({
+        ...baseData,
+        favorite_id: selectedFavoriteId
+      });
+    } else {
+      await this.props.onSaveFavorite(baseData);
+    }
+
+    this.setState({
+      saveLoading: false,
+      value: {},
+      number: null,
+      name: null,
+      selectedFavoriteId: null
+    });
+  };
+
+  onClickFavorite = ({ address }) => {
+    this.setState({
+      selectedFavoriteId: address.favorite_id,
+      number: address.address_number,
+      name: address.label,
+      value: { key: address.address_code, label: address.address_street }
+    });
+  };
+
+  onCancel = () => {
+    this.setState(
+      { value: {}, number: null, name: null, selectedFavoriteId: null },
+      this.props.onClose
     );
-    this.setState({ saveLoading: false });
   };
 
   render() {
@@ -65,7 +99,7 @@ export default class Favorite extends React.Component {
       <Modal
         title="Meus endereços"
         visible={this.props.open}
-        onCancel={this.props.onClose}
+        onCancel={this.onCancel}
         footer={null}
       >
         <div>
@@ -95,6 +129,7 @@ export default class Favorite extends React.Component {
           </div>
           <div style={{ marginTop: 15 }}>
             <Input
+              value={this.state.name}
               onChange={this.onChangeName}
               placeholder="Nome do endereço"
             />
@@ -118,6 +153,9 @@ export default class Favorite extends React.Component {
         <Divider />
         <div>
           <Table
+            onRow={record => ({
+              onClick: () => this.onClickFavorite(record) // click row
+            })}
             size="small"
             scroll={{ y: 140 }}
             pagination={false}
@@ -157,7 +195,10 @@ export default class Favorite extends React.Component {
               </p>
             </div>
             <Button
-              onClick={() => this.props.onDeleteFavorite(row.favorite_id)}
+              onClick={e => {
+                e.stopPropagation()
+                this.props.onDeleteFavorite(row.favorite_id);
+              }}
               shape="circle"
               icon="delete"
             />

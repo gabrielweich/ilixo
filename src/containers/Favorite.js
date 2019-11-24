@@ -7,13 +7,6 @@ import NumericInput from "../components/NumericInput";
 
 const { Option } = Select;
 
-const FAVORITE_COLUMNS = [
-  {
-    title: "Endereço",
-    dataIndex: "address"
-  }
-];
-
 export default class Favorite extends React.Component {
   constructor(props) {
     super(props);
@@ -124,9 +117,53 @@ export default class Favorite extends React.Component {
         </div>
         <Divider />
         <div>
-          <Table columns={[]} showHeader={false} dataSource={[]} />
+          <Table
+            size="small"
+            scroll={{ y: 140 }}
+            pagination={false}
+            columns={this.tableColumns}
+            showHeader={false}
+            dataSource={this.tableRows}
+            locale={{ emptyText: "Você não ainda não tem um local salvo." }}
+          />
         </div>
       </Modal>
     );
+  }
+
+  get tableRows() {
+    return Object.values(this.props.favorites).map(v => ({ address: v }));
+  }
+
+  get tableColumns() {
+    return [
+      {
+        title: "Endereço",
+        dataIndex: "address",
+        render: row => (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center"
+            }}
+          >
+            <div>
+              <p style={{ marginBottom: 0 }}>
+                <b>{row.label}</b>
+              </p>
+              <p style={{ marginBottom: 0 }}>
+                {row.address_street} - {row.address_number}
+              </p>
+            </div>
+            <Button
+              onClick={() => this.props.onDeleteFavorite(row.favorite_id)}
+              shape="circle"
+              icon="delete"
+            />
+          </div>
+        )
+      }
+    ];
   }
 }

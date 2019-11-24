@@ -114,10 +114,18 @@ class Home extends React.Component {
     this.getUserFavorites();
   };
 
+  onDeleteFavorite = async favorite_id => {
+    await axios.delete(
+      `/api/favorites?user_id=${DEFAULT_USER_ID}&favorite_id=${favorite_id}`
+    );
+    this.getUserFavorites();
+  };
+
   getUserFavorites = async () => {
     const { data } = await axios.get(
       `/api/favorites?user_id=${DEFAULT_USER_ID}`
     );
+    if (!data) return;
     const favoriteMap = data.reduce(
       (acc, curr) => ({
         ...acc,
@@ -158,7 +166,7 @@ class Home extends React.Component {
         >
           {!fetching && !data.length
             ? Object.values(this.state.favorites).map(d => (
-                <Option key={d.favorite_id}>☆ {d.address_street}</Option>
+                <Option key={d.favorite_id}>☆ {d.label}</Option>
               ))
             : null}
 
@@ -206,6 +214,8 @@ class Home extends React.Component {
           </Link>
         </div>
         <Favorite
+          onDeleteFavorite={this.onDeleteFavorite}
+          favorites={this.state.favorites}
           onSaveFavorite={this.onSaveFavorite}
           open={this.state.favoriteModalOpen}
           onClose={() => this.setState({ favoriteModalOpen: false })}

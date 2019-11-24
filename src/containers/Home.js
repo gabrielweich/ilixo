@@ -76,10 +76,12 @@ class Home extends React.Component {
 
   onSearch = async () => {
     this.setState({ loading: true });
-    const { number, value } = this.state;
+    const { number, value, favorites } = this.state;
     if (number && value.key) {
+      const code = value.key in favorites ? favorites[value.key].address_code : value.key
+
       const { data } = await axios.get(
-        `/api/garbage-collection?address_code=${value.key}&number=${number}`
+        `/api/garbage-collection?address_code=${code}&number=${number}`
       );
       if (data && data.time) {
         this.setState({ collectTime: data.time });

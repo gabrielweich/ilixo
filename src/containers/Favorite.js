@@ -59,6 +59,7 @@ export default class Favorite extends React.Component {
     await this.props.onSaveFavorite(
       parseInt(value.key),
       parseInt(number),
+      value.label,
       name
     );
     this.setState({ saveLoading: false });

@@ -83,10 +83,11 @@ class Home extends React.Component {
     this.setState({ favoriteModalOpen: true });
   };
 
-  onSaveFavorite = async (address_code, number, label) => {
+  onSaveFavorite = async (address_code, address_number, address_street, label) => {
     await axios.post("/api/favorites", {
       address_code,
-      number,
+      address_number,
+      address_street,
       label,
       user_id: DEFAULT_USER_ID
     });

@@ -1,12 +1,11 @@
-import React from 'react';
-import { Input, Tooltip } from 'antd';
-
+import React from "react";
+import { Input, Tooltip } from "antd";
 
 class NumericInput extends React.Component {
   onChange = e => {
     const { value } = e.target;
     const reg = /^-?(0|[1-9][0-9]*)(\.[0-9]*)?$/;
-    if ((!isNaN(value) && reg.test(value)) || value === '' || value === '-') {
+    if ((!isNaN(value) && reg.test(value)) || value === "" || value === "-") {
       this.props.onChange(value);
     }
   };
@@ -14,7 +13,7 @@ class NumericInput extends React.Component {
   // '.' at the end or only '-' in the input box.
   onBlur = () => {
     const { value, onBlur, onChange } = this.props;
-    if (value.charAt(value.length - 1) === '.' || value === '-') {
+    if ((value && value.charAt(value.length - 1) === ".") || value === "-") {
       onChange(value.slice(0, -1));
     }
     if (onBlur) {
@@ -24,11 +23,11 @@ class NumericInput extends React.Component {
 
   render() {
     const { value } = this.props;
-    const title = !value && 'Digite o número da sua residência'
-    
+    const title = !value && "Digite o número da sua residência";
+
     return (
       <Tooltip
-        trigger={['focus']}
+        trigger={["focus"]}
         title={title}
         placement="topLeft"
         overlayClassName="numeric-input"
@@ -44,6 +43,5 @@ class NumericInput extends React.Component {
     );
   }
 }
-
 
 export default NumericInput;

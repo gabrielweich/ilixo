@@ -1,36 +1,42 @@
-@import '~antd/dist/antd.css';
+@import "~antd/dist/antd.css";
 
 .app-title {
-    text-align: center;
-    color: #007aff;
-    margin-top: 20px;
+  text-align: center;
+  color: #007aff;
+  margin-top: 20px;
+}
+
+.address-not-found {
+  color: rgb(255, 59, 48);
+  text-align: center;
+  margin-top: 20px;
+  padding: 10px;
+  font-size: 16px;
 }
 
 .home-screen {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 }
 
 .home-container {
-    padding: 15px;
-    margin: 15px;
-    width: 100%;
-    max-width: 300px;
+  padding: 15px;
+  margin: 15px;
+  width: 100%;
+  max-width: 300px;
 }
-
 
 .collect-time {
-    color: #1ec337;
-    text-align: center;
-    margin-top: 20px;
-    padding: 10px;
-    font-size: 18px;
+  color: #1ec337;
+  text-align: center;
+  margin-top: 20px;
+  padding: 10px;
+  font-size: 18px;
 }
 
-
 img {
-    max-width: 100%; 
-    display:block; 
-    height: auto;
+  max-width: 100%;
+  display: block;
+  height: auto;
 }

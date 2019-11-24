@@ -26,7 +26,8 @@ class Home extends React.Component {
     loading: false,
     collectTime: "",
     favoriteModalOpen: false,
-    favorites: []
+    favorites: {},
+    addressNotFound: false
   };
 
   async componentDidMount() {
@@ -47,17 +48,29 @@ class Home extends React.Component {
   }
 
   fetchUser = async value => {
-    this.setState({ data: [], fetching: true });
-    const { data } = await axios.get(`/api/addresses?street=${value}`);
-    this.setState({ data: uniqBy(data, "address_code"), fetching: false });
+    if (value) {
+      this.setState({ data: [], fetching: true });
+      const { data } = await axios.get(`/api/addresses?street=${value}`);
+      this.setState({
+        data: uniqBy(data, "address_code"),
+        fetching: false,
+        addressNotFound: false
+      });
+    } else this.setState({ data: [] });
   };
 
   handleChange = async value => {
-    console.log({ value });
+    const { favorites } = this.state;
+    const extra =
+      value.key in favorites
+        ? { number: favorites[value.key].address_number }
+        : {};
+
     this.setState({
       value,
       data: [],
-      fetching: false
+      fetching: false,
+      ...extra
     });
   };
 
@@ -70,6 +83,8 @@ class Home extends React.Component {
       );
       if (data && data.time) {
         this.setState({ collectTime: data.time });
+      } else {
+        this.setState({ addressNotFound: true });
       }
     }
     this.setState({ loading: false });
@@ -83,7 +98,12 @@ class Home extends React.Component {
     this.setState({ favoriteModalOpen: true });
   };
 
-  onSaveFavorite = async (address_code, address_number, address_street, label) => {
+  onSaveFavorite = async (
+    address_code,
+    address_number,
+    address_street,
+    label
+  ) => {
     await axios.post("/api/favorites", {
       address_code,
       address_number,
@@ -95,10 +115,17 @@ class Home extends React.Component {
   };
 
   getUserFavorites = async () => {
-    const favorites = await axios.get(
+    const { data } = await axios.get(
       `/api/favorites?user_id=${DEFAULT_USER_ID}`
     );
-    console.log(favorites);
+    const favoriteMap = data.reduce(
+      (acc, curr) => ({
+        ...acc,
+        [curr.favorite_id]: curr
+      }),
+      {}
+    );
+    this.setState({ favorites: favoriteMap });
   };
 
   render() {
@@ -108,7 +135,7 @@ class Home extends React.Component {
         <Select
           showSearch
           labelInValue
-          value={value}
+          value={value && Object.keys(value).length ? value : undefined}
           placeholder="Digite a rua"
           notFoundContent={fetching ? <Spin size="small" /> : null}
           filterOption={false}
@@ -129,6 +156,12 @@ class Home extends React.Component {
             </div>
           )}
         >
+          {!fetching && !data.length
+            ? Object.values(this.state.favorites).map(d => (
+                <Option key={d.favorite_id}>☆ {d.address_street}</Option>
+              ))
+            : null}
+
           {data.map(d => (
             <Option key={d.address_code}>{d.street}</Option>
           ))}
@@ -149,7 +182,14 @@ class Home extends React.Component {
             Buscar
           </Button>
         </div>
-        <p className="collect-time">{this.state.collectTime}</p>
+        {this.state.collectTime ? (
+          <p className="collect-time">{this.state.collectTime}</p>
+        ) : this.state.addressNotFound ? (
+          <p className="address-not-found">
+            Não foi encontrado horário de coleta para esse endereço.
+          </p>
+        ) : null}
+
         <div style={{ textAlign: "center" }}>
           <Link to="/hints">
             <Button
